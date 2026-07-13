@@ -5,3 +5,5 @@ __pycache__/
 *.keras
 models/*.json
 models/*.pkl
+data/raw/
+data/processed/
