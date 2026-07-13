@@ -40,11 +40,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_FEATURES_DIR = BASE_DIR / "data" / "features"
 RESULTS_XGB_DIR = BASE_DIR / "results" / "xgboost"
 RESULTS_LSTM_DIR = BASE_DIR / "results" / "lstm"
-REPORT_METRICS_DIR = BASE_DIR / "reports" / "metrics"
-REPORT_SHAP_DIR = BASE_DIR / "reports" / "shap"
-REPORT_FEATIMP_DIR = BASE_DIR / "reports" / "feature_importance"
-REPORT_RESIDUALS_DIR = BASE_DIR / "reports" / "residuals"
-REPORT_PLOTS_DIR = BASE_DIR / "reports" / "plots"
+# NOTE: XGBoost report artifacts now live under an "XGBoost" subfolder
+# after the reports/ restructure. These constants point at that subfolder
+# since every consumer of them in this file is an XGBoost-specific artifact.
+REPORT_METRICS_DIR = BASE_DIR / "reports" / "metrics" / "XGBoost"
+REPORT_SHAP_DIR = BASE_DIR / "reports" / "shap" / "XGBoost"
+REPORT_FEATIMP_DIR = BASE_DIR / "reports" / "feature_importance" / "XGBoost"
+REPORT_RESIDUALS_DIR = BASE_DIR / "reports" / "residuals" / "XGBoost"
+REPORT_PLOTS_DIR = BASE_DIR / "reports" / "plots" / "XGBoost"
 
 REGIONS = ["northern", "western", "eastern", "southern", "northeastern"]
 
