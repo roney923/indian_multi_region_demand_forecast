@@ -41,12 +41,12 @@ DATA_FEATURES_DIR = BASE_DIR / "data" / "features"
 RESULTS_XGB_DIR = BASE_DIR / "results" / "xgboost"
 RESULTS_LSTM_DIR = BASE_DIR / "results" / "lstm"
 # NOTE: XGBoost report artifacts now live under an "XGBoost" subfolder
-# after the reports/ restructure. These constants point at that subfolder
-# since every consumer of them in this file is an XGBoost-specific artifact.
+# after the reports/ restructure. REPORT_METRICS_DIR stays XGBoost-only
+# since model_summary.csv and residual_statistics.csv are only ever
+# produced by evaluate.py for XGBoost. SHAP / feature importance /
+# residuals now have per-model versions and are looked up dynamically
+# in each tab using `model_folder` instead of a fixed constant.
 REPORT_METRICS_DIR = BASE_DIR / "reports" / "metrics" / "XGBoost"
-REPORT_SHAP_DIR = BASE_DIR / "reports" / "shap" / "XGBoost"
-REPORT_FEATIMP_DIR = BASE_DIR / "reports" / "feature_importance" / "XGBoost"
-REPORT_RESIDUALS_DIR = BASE_DIR / "reports" / "residuals" / "XGBoost"
 REPORT_PLOTS_DIR = BASE_DIR / "reports" / "plots" / "XGBoost"
 
 REGIONS = ["northern", "western", "eastern", "southern", "northeastern"]
@@ -113,6 +113,10 @@ selected_model = st.sidebar.radio(
     "Model",
     ["XGBoost", "LSTM"],
 )
+
+# Maps the model toggle to the report subfolder naming convention on disk
+# (reports/<type>/XGBoost/... and reports/<type>/lstm/...).
+model_folder = "XGBoost" if selected_model == "XGBoost" else "lstm"
 
 st.sidebar.divider()
 st.sidebar.caption(
@@ -300,8 +304,9 @@ with tab_shap:
         "above or below the average forecast."
     )
 
-    summary_img = REPORT_SHAP_DIR / f"{selected_region}_summary.png"
-    bar_img = REPORT_SHAP_DIR / f"{selected_region}_bar.png"
+    shap_dir = BASE_DIR / "reports" / "shap" / model_folder
+    summary_img = shap_dir / f"{selected_region}_summary.png"
+    bar_img = shap_dir / f"{selected_region}_bar.png"
 
     col1, col2 = st.columns(2)
 
@@ -310,32 +315,39 @@ with tab_shap:
         if summary_img.exists():
             st.image(str(summary_img), use_container_width=True)
         else:
-            st.info("SHAP summary plot not found for this region.")
+            st.info(
+                "SHAP summary plot not found for this region. "
+                + ("Run `src/shap_analysis.py`."
+                   if selected_model == "XGBoost"
+                   else "Run `src/shap_analysis_lstm.py`.")
+            )
 
     with col2:
         st.markdown("**Bar plot** (mean absolute feature impact)")
         if bar_img.exists():
             st.image(str(bar_img), use_container_width=True)
         else:
-            st.info("SHAP bar plot not found for this region.")
-
-    if selected_model == "LSTM":
-        st.caption(
-            "ℹ️ SHAP values shown above were computed against the XGBoost model "
-            "(`shap_analysis.py`). SHAP explainability for LSTM is not yet implemented."
-        )
+            st.info(
+                "SHAP bar plot not found for this region. "
+                + ("Run `src/shap_analysis.py`."
+                   if selected_model == "XGBoost"
+                   else "Run `src/shap_analysis_lstm.py`.")
+            )
 
 # ==========================================================
 # TAB 4 — Feature Importance & Residuals
 # ==========================================================
 
 with tab_extra:
+    featimp_dir = BASE_DIR / "reports" / "feature_importance" / model_folder
+    residuals_dir = BASE_DIR / "reports" / "residuals" / model_folder
+
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Feature Importance (XGBoost)")
-        fi_csv = load_csv(REPORT_FEATIMP_DIR / f"{selected_region}_importance.csv")
-        fi_img = REPORT_FEATIMP_DIR / f"{selected_region}_importance.png"
+        st.subheader(f"Feature Importance ({selected_model})")
+        fi_csv = load_csv(featimp_dir / f"{selected_region}_importance.csv")
+        fi_img = featimp_dir / f"{selected_region}_importance.png"
 
         if fi_img.exists():
             st.image(str(fi_img), use_container_width=True)
@@ -346,12 +358,22 @@ with tab_extra:
                 hide_index=True,
             )
         if fi_csv is None and not fi_img.exists():
-            st.info("Feature importance data not found for this region.")
+            st.info(
+                "Feature importance data not found for this region. "
+                + ("Run `src/evaluate.py`."
+                   if selected_model == "XGBoost"
+                   else "Run `src/shap_analysis_lstm.py`.")
+            )
 
     with col2:
-        st.subheader("Residual Plot (XGBoost)")
-        resid_img = REPORT_RESIDUALS_DIR / f"{selected_region}_residual.png"
+        st.subheader(f"Residual Plot ({selected_model})")
+        resid_img = residuals_dir / f"{selected_region}_residual.png"
         if resid_img.exists():
             st.image(str(resid_img), use_container_width=True)
         else:
-            st.info("Residual plot not found for this region.")
+            st.info(
+                "Residual plot not found for this region. "
+                + ("Run `src/evaluate.py`."
+                   if selected_model == "XGBoost"
+                   else "Run `src/evaluate_lstm.py`.")
+            )
