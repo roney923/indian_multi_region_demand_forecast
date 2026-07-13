@@ -1,4 +1,4 @@
-# GridCast AI — Multi-Region Electricity Demand Forecasting for the Indian National Grid
+# Multi-Region Electricity Demand Forecasting for the Indian National Grid
 
 Machine learning pipeline forecasting hourly electricity demand across India's five power grid regions (Northern, Western, Eastern, Southern, North-Eastern), using historical demand + weather data, with model explainability and an interactive dashboard.
 
@@ -173,10 +173,6 @@ streamlit run dashboard/app.py     # launch the dashboard
 - Additional weather variables (rainfall, pressure, solar radiation)
 - Rolling-origin time-series cross-validation in place of a single train/test split
 - Hyperparameter tuning (Optuna/GridSearchCV) for both models
-
-## Acknowledgements
-
-This project's methodology (lag/rolling feature engineering, tree-based vs. sequence-model comparison against naive persistence) was inspired by the open-source [AI_Energy_Manager](https://github.com/mehdighelich/AI_Energy_Manager) project by Mehdi Ghelich (MIT License), which applied a similar pipeline to Spanish (Madrid) load and weather data. This project extends that approach to all five Indian Grid-India regions, using real NLDC grid operations data and region-specific multi-city weather composites.
 
 ## License
 
