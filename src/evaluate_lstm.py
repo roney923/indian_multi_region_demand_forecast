@@ -123,6 +123,10 @@ for region in regions:
     # ------------------------------------------------------
 
     metrics = evaluate_model(y_test_actual.flatten(), y_pred_actual.flatten())
+    # Save once for the dashboard (results/lstm/{region}_metrics.csv, matches
+    # what dashboard/app.py looks for) and once alongside the other report
+    # artifacts (reports/metrics/lstm/{region}_metrics.csv).
+    save_metrics(metrics, region, save_dir=RESULT_DIR)
     save_metrics(metrics, region, save_dir=METRIC_DIR)
 
     summary.append({"Region": region, **metrics})
