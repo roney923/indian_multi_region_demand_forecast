@@ -5,3 +5,7 @@ xgboost>=2.0
 requests>=2.31
 matplotlib>=3.7
 shap>=0.44
+plotly>=5.18
+streamlit>=1.30
+plotly>=5.18
+tensorflow
